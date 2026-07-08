@@ -1,0 +1,318 @@
+\documentclass[11pt,a4paper]{article}
+
+% REQUISITOS TRANSVERSALES
+\usepackage{booktabs}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage[style=ieee,backend=biber,sorting=none]{biblatex}
+\usepackage{hyperref}
+
+% IDIOMA Y TIPOGRAFÍA
+\usepackage[spanish,es-nodecimaldot]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{csquotes}
+
+% DISEÑO GENERAL
+\usepackage[
+    a4paper,
+    top=1.65cm,
+    bottom=1.65cm,
+    left=1.75cm,
+    right=1.75cm,
+    headheight=15pt,
+    headsep=7pt,
+    footskip=16pt
+]{geometry}
+
+\usepackage{xcolor}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{ragged2e}
+\usepackage{setspace}
+\usepackage{lastpage}
+\usepackage[most]{tcolorbox}
+
+\addbibresource{referencias.bib}
+
+% COLORES
+\definecolor{azulPrincipal}{HTML}{17365D}
+\definecolor{azulSecundario}{HTML}{2F5597}
+\definecolor{azulClaro}{HTML}{EEF3F8}
+\definecolor{grisClaro}{HTML}{F5F6F7}
+\definecolor{grisMedio}{HTML}{D5DAE0}
+\definecolor{grisTexto}{HTML}{3D4349}
+\definecolor{verdeClaro}{HTML}{EEF6F1}
+\definecolor{verdeBorde}{HTML}{3F7656}
+
+% HIPERVÍNCULOS
+\hypersetup{
+    colorlinks=true,
+    linkcolor=azulSecundario,
+    citecolor=azulSecundario,
+    urlcolor=azulSecundario,
+    pdftitle={Análisis técnico de CockroachDB},
+    pdfauthor={Jeremy Ruperto Gaibor Rodríguez},
+    pdfsubject={Aplicaciones Distribuidas}
+}
+
+% TEXTO
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{3pt}
+\setstretch{1.01}
+\justifying
+
+% TÍTULOS
+\titleformat{\section}
+  {\large\bfseries\color{azulPrincipal}}
+  {\thesection.}
+  {0.5em}
+  {}
+
+\titlespacing*{\section}{0pt}{6pt}{2pt}
+
+\newcommand{\sectionrule}{
+    \vspace{-1pt}
+    {\color{grisMedio}\hrule height 0.45pt}
+    \vspace{2pt}
+}
+
+% ENCABEZADO Y PIE
+\pagestyle{fancy}
+\fancyhf{}
+
+\lhead{\small\textcolor{azulPrincipal}{\textbf{FORM-IC-02}}}
+\chead{\small Aplicaciones Distribuidas}
+\rhead{\small CockroachDB}
+
+\cfoot{
+    \small
+    Jeremy Ruperto Gaibor Rodríguez
+    \hspace{7pt}|\hspace{7pt}
+    Página \thepage\ de \pageref{LastPage}
+}
+
+\renewcommand{\headrulewidth}{0.45pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% TABLAS
+\newcolumntype{Y}{>{\RaggedRight\arraybackslash}X}
+\renewcommand{\arraystretch}{1.08}
+
+% CAJAS
+\newtcolorbox{resumenbox}{
+    colback=azulClaro,
+    colframe=azulPrincipal,
+    boxrule=0.55pt,
+    arc=1mm,
+    left=3.5mm,
+    right=3.5mm,
+    top=2mm,
+    bottom=2mm,
+    before skip=3pt,
+    after skip=4pt
+}
+
+\newtcolorbox{decisionbox}{
+    colback=verdeClaro,
+    colframe=verdeBorde,
+    boxrule=0.55pt,
+    arc=1mm,
+    left=3.5mm,
+    right=3.5mm,
+    top=2mm,
+    bottom=2mm,
+    before skip=3pt,
+    after skip=4pt
+}
+
+% LISTINGS
+\lstset{
+    basicstyle=\ttfamily\small,
+    frame=single,
+    rulecolor=\color{grisMedio},
+    backgroundcolor=\color{grisClaro},
+    keywordstyle=\bfseries\color{azulPrincipal},
+    breaklines=true,
+    showstringspaces=false
+}
+
+% BIBLIOGRAFÍA
+\defbibheading{bibliography}[\refname]{
+    \section*{#1}
+    \sectionrule
+}
+
+\AtBeginBibliography{
+    \small
+    \setlength{\bibitemsep}{2pt}
+    \setlength{\bibhang}{9pt}
+}
+
+\begin{document}
+
+% ENCABEZADO PRINCIPAL
+\begin{center}
+    {\LARGE\bfseries\color{azulPrincipal}
+    Análisis técnico de CockroachDB}
+
+    \vspace{1mm}
+
+    {\normalsize
+    Distribución de datos, consistencia CAP y pertinencia para TiendaTech}
+\end{center}
+
+\vspace{1mm}
+{\color{azulPrincipal}\hrule height 0.8pt}
+\vspace{2mm}
+
+\begin{tabularx}{\textwidth}{@{}>{\bfseries\color{azulPrincipal}}l Y
+                               >{\bfseries\color{azulPrincipal}}l Y@{}}
+\toprule
+Autor: & Jeremy Ruperto Gaibor Rodríguez &
+Actividad: & FORM-IC-02 \\
+Asignatura: & Aplicaciones Distribuidas &
+Proyecto: & TiendaTech \\
+\bottomrule
+\end{tabularx}
+
+\vspace{2mm}
+
+\begin{resumenbox}
+\textbf{\textcolor{azulPrincipal}{Síntesis.}}
+CockroachDB es una base de datos \textit{Distributed SQL} que conserva
+transacciones relacionales mientras distribuye y replica la información
+entre varios nodos. Este análisis revisa su organización de datos, su
+clasificación según CAP, un caso real y su posible aplicación en TiendaTech.
+\end{resumenbox}
+
+% INTRODUCCIÓN
+\section{Introducción}
+\sectionrule
+
+CockroachDB conserva tablas, consultas SQL y transacciones ACID, pero
+distribuye la información entre varios nodos. Para la aplicación se presenta
+como una sola base lógica, mientras el motor administra la ubicación y las
+réplicas. En despliegues multirregión también permite declarar mediante SQL
+la localidad de los datos y los objetivos de supervivencia
+\cite{vanbenschoten2022,ajmani2022}.
+
+Su utilidad aparece cuando una aplicación necesita operar en distintas
+ubicaciones sin mantener una base independiente por cada sede. En un sistema
+pequeño, esa complejidad puede no estar justificada.
+
+% DISTRIBUCIÓN
+\section{Distribución de datos}
+\sectionrule
+
+Las tablas e índices se representan en un espacio ordenado de claves dividido
+en unidades llamadas \textit{rangos}. Estos pueden separarse al crecer,
+repartirse entre nodos y rebalancearse cuando cambia la composición del
+clúster \cite{distributionlayer,ajmani2022}. Desde la aplicación no es
+necesario conocer qué servidor almacena cada fila.
+
+Cada rango mantiene varias réplicas coordinadas mediante Raft. Una escritura
+solo se confirma cuando existe acuerdo de un quórum. Con tres réplicas se
+requieren dos; si se pierde esa mayoría, el rango afectado deja de aceptar
+operaciones que necesitan consenso \cite{replicationlayer,hardrockcase}.
+
+\begin{table}[ht]
+\centering
+\small
+\caption{Modalidades de localidad en CockroachDB}
+\begin{tabularx}{\textwidth}{@{}>{\ttfamily}l Y@{}}
+\toprule
+\textbf{Configuración} & \textbf{Uso principal} \\
+\midrule
+GLOBAL &
+Favorece lecturas desde distintas regiones. \\
+
+REGIONAL BY TABLE &
+Mantiene la tabla cerca de una región principal. \\
+
+REGIONAL BY ROW &
+Permite asignar cada fila a una región específica. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+La modalidad debe elegirse según el patrón de lectura y escritura de cada
+tabla, no aplicarse de igual forma a toda la base
+\cite{vanbenschoten2022,ajmani2022}.
+
+% CAP
+\section{Consistencia según CAP}
+\sectionrule
+
+CockroachDB puede analizarse principalmente como un sistema \textbf{CP}.
+Durante una partición mantiene la consistencia y la tolerancia a particiones;
+el grupo sin mayoría no puede confirmar escrituras. La disponibilidad puede
+reducirse temporalmente antes que permitir estados incompatibles
+\cite{replicationlayer,transactionlayer}.
+
+La capa transaccional admite operaciones ACID sobre diferentes filas, tablas
+y rangos. Bajo aislamiento serializable, las transacciones concurrentes deben
+producir un resultado equivalente a una ejecución ordenada
+\cite{transactionlayer,vanbenschoten2022}. En TiendaTech, esta propiedad
+permitiría registrar un pedido y reducir el inventario dentro de una sola
+transacción.
+
+% CASO REAL
+\section{Caso real documentado}
+\sectionrule
+
+Hard Rock Digital utiliza CockroachDB en una plataforma de apuestas deportivas
+que opera en varios estados de Estados Unidos. La solución mantiene una sola
+base lógica y combina regiones de AWS, zonas locales y AWS Outposts para
+cumplir requisitos de disponibilidad, escalamiento y residencia de datos
+\cite{hardrockcase,hardrockblog}.
+
+El caso reporta operación en ocho estados o regiones y cerca de cien nodos
+durante periodos de alta demanda. Las fuentes pertenecen a Cockroach Labs, por
+lo que son válidas para documentar la implementación, pero no constituyen una
+comparación independiente con otras tecnologías.
+
+% PERTINENCIA
+\section{Pertinencia para TiendaTech}
+\sectionrule
+
+En TiendaTech, productos, marcas y categorías podrían evaluarse como
+información global, porque todas las sucursales consultarían el mismo
+catálogo. El inventario podría manejarse como regional por fila, asociando
+cada existencia con la sucursal responsable
+\cite{vanbenschoten2022,ajmani2022}.
+
+Los pedidos y la reducción del stock deberían ejecutarse dentro de una sola
+transacción. Así se registraría la venta y se descontaría la existencia, o se
+cancelarían ambas operaciones si ocurre un error.
+
+\begin{decisionbox}
+\textbf{\textcolor{verdeBorde}{Decisión técnica.}}
+Mantendría PostgreSQL y \texttt{postgres\_fdw} en la versión académica actual,
+porque permiten demostrar explícitamente la fragmentación, la replicación y
+la reconstrucción. Consideraría CockroachDB si TiendaTech operara en varias
+sedes reales, con alta concurrencia y necesidad de continuar ante fallos.
+\end{decisionbox}
+
+% CONCLUSIÓN
+\section{Conclusión}
+\sectionrule
+
+CockroachDB distribuye la información mediante rangos replicados y coordinados
+por Raft. Su comportamiento es principalmente CP porque exige quórum y
+prioriza la consistencia durante una partición. Hard Rock Digital demuestra
+que puede utilizarse en un entorno multirregión real.
+
+Para TiendaTech sería una alternativa futura. En la implementación actual,
+PostgreSQL sigue siendo suficiente y permite comprender de forma más directa
+los mecanismos de distribución exigidos en la asignatura.
+
+% REFERENCIAS
+\printbibliography[title={Referencias}]
+
+\end{document}
